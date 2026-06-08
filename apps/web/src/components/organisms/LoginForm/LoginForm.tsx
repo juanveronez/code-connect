@@ -29,8 +29,8 @@ export function LoginForm() {
       <div className="flex flex-col gap-8">
         <div className="flex flex-col gap-10">
           <div className="flex flex-col gap-6">
-            <h1 className="text-[31px] font-semibold text-foreground">Login</h1>
-            <p className="text-[22px] text-foreground">Boas-vindas! Faça seu login.</p>
+            <h1 className="text-3xl font-semibold text-foreground">Login</h1>
+            <p className="text-xl text-foreground">Boas-vindas! Faça seu login.</p>
           </div>
           <div className="flex flex-col gap-4">
             <FormField

@@ -14,6 +14,8 @@
   --radius-card: 2rem;
 
   --font-sans: 'Prompt', system-ui, 'Segoe UI', Roboto, sans-serif;
+
+  --container-auth-card: 62.25rem;
 }
 
 body {

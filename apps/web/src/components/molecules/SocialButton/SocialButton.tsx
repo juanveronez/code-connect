@@ -17,7 +17,7 @@ export function SocialButton({ iconSrc, iconAlt, iconSize = 32, label, onClick }
       className="flex flex-col items-center gap-1 text-foreground hover:opacity-80 transition-opacity cursor-pointer"
     >
       <Icon src={iconSrc} alt={iconAlt} size={iconSize} />
-      <span className="text-[12.5px]">{label}</span>
+      <span className="text-xs">{label}</span>
     </button>
   )
 }

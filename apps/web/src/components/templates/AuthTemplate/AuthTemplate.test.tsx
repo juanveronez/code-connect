@@ -21,16 +21,8 @@ describe('AuthTemplate', () => {
     expect(screen.getByAltText('Login banner')).toBeInTheDocument()
   })
 
-  it('renders crop container when crop prop is provided', () => {
-    const cropBanner = {
-      src: '/banner-login.png',
-      alt: 'Login banner',
-      crop: {
-        containerHeight: 'h-[628px]',
-        imgClass: 'absolute h-[101.49%] left-[-68.8%] max-w-none top-[-1.11%] w-[234.89%]',
-      },
-    }
-    const { container } = render(<AuthTemplate banner={cropBanner}><span /></AuthTemplate>)
+  it('renders banner container with overflow hidden', () => {
+    const { container } = render(<AuthTemplate banner={banner}><span /></AuthTemplate>)
     expect(container.querySelector('.overflow-hidden')).toBeInTheDocument()
   })
 })

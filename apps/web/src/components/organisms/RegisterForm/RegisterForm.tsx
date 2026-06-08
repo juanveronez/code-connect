@@ -29,8 +29,8 @@ export function RegisterForm() {
       <div className="flex flex-col gap-8">
         <div className="flex flex-col gap-10">
           <div className="flex flex-col gap-6">
-            <h1 className="text-[31px] font-semibold text-foreground">Cadastro</h1>
-            <p className="text-[22px] text-foreground">Olá! Preencha seus dados.</p>
+            <h1 className="text-3xl font-semibold text-foreground">Cadastro</h1>
+            <p className="text-xl text-foreground">Olá! Preencha seus dados.</p>
           </div>
           <div className="flex flex-col gap-4">
             <FormField
@@ -57,7 +57,7 @@ export function RegisterForm() {
                 registration={register('password')}
                 error={errors.password?.message}
               />
-              <label className="flex items-center gap-2 cursor-pointer text-[15px] text-muted">
+              <label className="flex items-center gap-2 cursor-pointer text-sm text-muted">
                 <Checkbox {...register('rememberMe')} />
                 Lembrar-me
               </label>

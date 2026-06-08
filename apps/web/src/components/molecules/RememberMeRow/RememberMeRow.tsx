@@ -9,11 +9,11 @@ type RememberMeRowProps = {
 export function RememberMeRow({ registration }: RememberMeRowProps) {
   return (
     <div className="flex items-center justify-between">
-      <label className="flex items-center gap-2 cursor-pointer text-[15px] text-muted">
+      <label className="flex items-center gap-2 cursor-pointer text-sm text-muted">
         <Checkbox {...registration} />
         Lembrar-me
       </label>
-      <TextLink to="#" tone="default" className="text-[15px] underline">Esqueci a senha</TextLink>
+      <TextLink to="#" tone="default" className="text-sm underline">Esqueci a senha</TextLink>
     </div>
   )
 }
