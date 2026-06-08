@@ -2,11 +2,12 @@ import { AuthTemplate } from '../../components/templates/AuthTemplate'
 import { RegisterForm } from '../../components/organisms/RegisterForm'
 
 const banner = {
-  desktop: '/banner-register-desktop.png',
-  tablet: '/banner-register-tablet.png',
-  mobile: '/banner-register-mobile.png',
+  src: '/banner-register-desktop.png',
   alt: 'Ilustração de cadastro',
-  crop: true,
+  crop: {
+    containerHeight: 'h-[675px]',
+    imgClass: 'absolute h-full max-w-none top-0 w-[248.77%] left-[-89.74%]',
+  },
 }
 
 export function RegisterPage() {

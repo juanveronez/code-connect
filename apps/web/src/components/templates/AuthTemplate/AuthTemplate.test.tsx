@@ -2,9 +2,7 @@ import { render, screen } from '@testing-library/react'
 import { AuthTemplate } from './AuthTemplate'
 
 const banner = {
-  desktop: '/banner-login-desktop.png',
-  tablet: '/banner-login-tablet.png',
-  mobile: '/banner-login-mobile.png',
+  src: '/banner-login.png',
   alt: 'Login banner',
 }
 
@@ -18,13 +16,21 @@ describe('AuthTemplate', () => {
     expect(screen.getByText('Conteúdo do formulário')).toBeInTheDocument()
   })
 
-  it('renders picture element with sources', () => {
-    const { container } = render(<AuthTemplate banner={banner}><span /></AuthTemplate>)
-    expect(container.querySelectorAll('source')).toHaveLength(2)
-  })
-
   it('renders img with alt text', () => {
     render(<AuthTemplate banner={banner}><span /></AuthTemplate>)
     expect(screen.getByAltText('Login banner')).toBeInTheDocument()
+  })
+
+  it('renders crop container when crop prop is provided', () => {
+    const cropBanner = {
+      src: '/banner-login.png',
+      alt: 'Login banner',
+      crop: {
+        containerHeight: 'h-[628px]',
+        imgClass: 'absolute h-[101.49%] left-[-68.8%] max-w-none top-[-1.11%] w-[234.89%]',
+      },
+    }
+    const { container } = render(<AuthTemplate banner={cropBanner}><span /></AuthTemplate>)
+    expect(container.querySelector('.overflow-hidden')).toBeInTheDocument()
   })
 })
