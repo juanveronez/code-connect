@@ -67,9 +67,57 @@ Examples:
   - `src/components/templates/` — page-level layout skeletons
   - `src/pages/` — concrete page instances that hydrate templates with data
 - **Styling**: Tailwind CSS — utility classes only, no custom CSS files unless strictly necessary
+- **Style and color conventions** — see detailed guidelines below
 - **Testing**: every component must have a `*.test.tsx` alongside it (Vitest + Testing Library)
   - Cover the essential usage: renders without crashing, reflects the primary prop/state, and any critical interaction
   - Run tests with `pnpm web:test`
+
+### Style and color guidelines (`apps/web`)
+
+This project uses **Tailwind CSS v4**. Tokens are defined in `apps/web/src/index.css` inside the `@theme` block — there is no `tailwind.config.js`.
+
+#### Tokens and design system
+
+Custom tokens live in `src/index.css` under `@theme` and follow Tailwind v4 namespace conventions:
+
+| CSS variable prefix | Generates utility | Example |
+|---|---|---|
+| `--color-*` | `bg-*`, `text-*`, `border-*` | `--color-primary` → `bg-primary` |
+| `--container-*` | `max-w-*` | `--container-auth-card` → `max-w-auth-card` |
+| `--radius-*` | `rounded-*` | `--radius-card` → `rounded-card` |
+| `--font-*` | `font-*` | `--font-sans` → applied via `font-family` |
+
+**Colors** — always use semantic color tokens, never raw hex values in class names:
+- `bg-bg` / `bg-card` — page and card backgrounds
+- `text-foreground` — primary text
+- `text-muted` — secondary/helper text
+- `text-primary` / `bg-primary` — brand accent (green)
+- `border-input-border`, `bg-input-bg`, `text-input-text` — form inputs
+
+#### Tailwind utility rules
+
+- **No arbitrary values** — never use `text-[15px]`, `w-[400px]`, `h-[32px]`, `left-[-89%]`, etc.
+- **No hardcoded `px` or `%`** in class names.
+- Use standard Tailwind scale tokens (`text-sm`, `text-lg`, `w-96`, `h-10`, `max-w-sm`…). When no exact token matches, pick the closest one.
+- If a value has no reasonable standard token (e.g. a one-off layout dimension), define it as a named token in `@theme` and use that token class.
+- **Measurement tokens must use `rem`**, never `px` — e.g. `--container-auth-card: 62.25rem` (996 ÷ 16), not `996px`.
+
+**Font size reference** (closest standard tokens):
+
+| Target size | Token | Rendered size |
+|---|---|---|
+| ~12–13 px | `text-xs` | 12 px |
+| ~14–15 px | `text-sm` | 14 px |
+| 16 px | `text-base` | 16 px |
+| 18 px | `text-lg` | 18 px |
+| ~20–21 px | `text-xl` | 20 px |
+| ~22–23 px | `text-2xl` | 24 px |
+| ~28–31 px | `text-3xl` | 30 px |
+
+#### Layout and images
+
+- **Flexbox-driven heights** — prefer `items-stretch` + `h-full` on children over hardcoded height values. Let content determine height.
+- **Image cropping** — use `object-cover` (and optionally `object-position`) inside an `overflow-hidden` container. Never use percentage-based absolute positioning (`w-[248%] left-[-89%]`) to simulate a crop.
 
 ### Backend — NestJS (`apps/api`)
 
