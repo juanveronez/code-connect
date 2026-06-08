@@ -71,6 +71,77 @@ Examples:
 - **Testing**: every component must have a `*.test.tsx` alongside it (Vitest + Testing Library)
   - Cover the essential usage: renders without crashing, reflects the primary prop/state, and any critical interaction
   - Run tests with `pnpm web:test`
+- **Accessibility testing**: every component must also have a `*.a11y.test.tsx` alongside it (jest-axe + axe-core, WCAG 2 AA ruleset)
+  - See [Accessibility testing guidelines](#accessibility-testing-guidelines-wcag-2-aa) below
+
+### Accessibility testing guidelines (WCAG 2 AA)
+
+Every component gets a `ComponentName.a11y.test.tsx` file alongside its `ComponentName.test.tsx`. The goal is to catch structural and semantic WCAG 2 AA violations automatically on every CI run.
+
+#### Setup and helpers
+
+- **Library**: `jest-axe` (wraps axe-core); matchers registered globally in `src/test/setup.ts`
+- **Shared helper**: `src/test/a11y.ts` exports `runAxe(container)` pre-configured for WCAG 2 AA:
+
+```ts
+import { runAxe } from '../../../test/a11y'
+```
+
+#### File naming and location
+
+```
+src/components/atoms/Button/
+  Button.tsx
+  Button.test.tsx        ← behaviour tests
+  Button.a11y.test.tsx   ← accessibility tests   ← NEW
+```
+
+#### Test structure
+
+```tsx
+import { render } from '@testing-library/react'
+import { runAxe } from '../../../test/a11y'
+import { Button } from './Button'
+
+describe('Button – acessibilidade (WCAG 2 AA)', () => {
+  it('variante primary com texto não tem violações', async () => {
+    const { container } = render(<Button>Entrar</Button>)
+    expect(await runAxe(container)).toHaveNoViolations()
+  })
+})
+```
+
+#### Rules for writing a11y tests
+
+1. **Test realistic usage** — render the component exactly as it appears in the app (with labels, wrappers, siblings). A `Checkbox` isolated without a label will fail, but that is the invalid usage, not a bug.
+2. **Also test invalid usage** with `not.toHaveNoViolations()` to confirm axe catches the violation. This documents the contract: "this component is only accessible when used with a label."
+3. **Wrap router-dependent components** in `<MemoryRouter>` (`TextLink`, `AuthFooter`, forms that include footer links).
+4. **Wrap react-hook-form-dependent components** in a local wrapper component that calls `useForm` and passes the `registration` prop.
+5. **Use Portuguese** for `describe`/`it` strings to match the rest of the test suite.
+
+#### What automated tests cover (detectable in jsdom)
+
+| WCAG criterion | What axe checks |
+|---|---|
+| 1.1.1 Non-text Content | `alt` on images; labels on inputs |
+| 1.3.1 Info and Relationships | Semantic structure; `<label>` associated to controls |
+| 3.3.2 Labels or Instructions | Every form control has an accessible name |
+| 4.1.2 Name, Role, Value | Buttons and links have names; ARIA attributes are valid |
+| 4.1.3 Status Messages | Error spans use `role="alert"` |
+
+#### What automated tests cannot cover (requires browser tools)
+
+These criteria need Lighthouse / axe DevTools / WAVE in a real browser:
+
+| WCAG criterion | Why jsdom cannot check it |
+|---|---|
+| 1.4.3 Contrast (Minimum) | jsdom does not compute CSS — Tailwind color tokens are never resolved |
+| 1.4.11 Non-text Contrast | Same reason |
+| 2.4.7 Focus Visible | Focus ring styles require a real rendering engine |
+| 2.1.1 Keyboard | Requires actual keyboard events in a browser |
+| 1.4.4 Resize Text | Requires browser zoom |
+
+> Run Lighthouse (`pnpm web:dev` → DevTools → Lighthouse → Accessibility) or the axe browser extension after any visual or layout change to catch contrast and focus issues not covered by unit tests.
 
 ### Style and color guidelines (`apps/web`)
 
