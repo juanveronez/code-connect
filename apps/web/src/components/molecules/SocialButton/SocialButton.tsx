@@ -4,19 +4,20 @@ import { Icon } from '../../atoms/Icon'
 type SocialButtonProps = {
   iconSrc: string
   iconAlt: string
+  iconSize?: number
   label: ReactNode
   onClick?: () => void
 }
 
-export function SocialButton({ iconSrc, iconAlt, label, onClick }: SocialButtonProps) {
+export function SocialButton({ iconSrc, iconAlt, iconSize = 32, label, onClick }: SocialButtonProps) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="flex flex-col items-center justify-center gap-2 rounded-lg bg-social-bg border border-input-border px-6 py-4 text-xs text-muted hover:border-primary/50 hover:text-foreground transition-colors cursor-pointer flex-1"
+      className="flex flex-col items-center gap-1 text-foreground hover:opacity-80 transition-opacity cursor-pointer"
     >
-      <Icon src={iconSrc} alt={iconAlt} size={24} />
-      <span>{label}</span>
+      <Icon src={iconSrc} alt={iconAlt} size={iconSize} />
+      <span className="text-[12.5px]">{label}</span>
     </button>
   )
 }

@@ -6,9 +6,9 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 }
 
 export function Button({ variant = 'primary', rightIcon, children, className = '', ...props }: ButtonProps) {
-  const base = 'inline-flex items-center justify-center gap-2 rounded-lg px-5 py-3 text-sm font-semibold transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed'
+  const base = 'inline-flex items-center justify-center gap-2 rounded-lg px-5 py-3 text-lg font-semibold transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed'
   const variants = {
-    primary: 'bg-primary text-[#0a0a0a] hover:bg-primary/90',
+    primary: 'bg-primary text-primary-fg hover:bg-primary/90',
     ghost: 'bg-transparent text-foreground border border-input-border hover:bg-input-bg',
   }
 

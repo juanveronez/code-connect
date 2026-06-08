@@ -14,7 +14,7 @@ function Wrapper() {
 describe('LoginForm', () => {
   it('shows validation errors on empty submit', async () => {
     render(<Wrapper />)
-    await userEvent.click(screen.getByRole('button', { name: 'Entrar' }))
+    await userEvent.click(screen.getByRole('button', { name: /login/i }))
     expect(await screen.findByText('Informe seu email ou usuário')).toBeInTheDocument()
     expect(await screen.findByText('Informe sua senha')).toBeInTheDocument()
   })
@@ -25,7 +25,7 @@ describe('LoginForm', () => {
 
     await userEvent.type(screen.getByLabelText('Email ou usuário'), 'user@test.com')
     await userEvent.type(screen.getByLabelText('Senha'), 'secret123')
-    await userEvent.click(screen.getByRole('button', { name: 'Entrar' }))
+    await userEvent.click(screen.getByRole('button', { name: /login/i }))
 
     expect(spy).toHaveBeenCalledWith({
       identifier: 'user@test.com',

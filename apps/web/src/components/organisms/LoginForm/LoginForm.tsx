@@ -3,6 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { loginSchema } from '../../../lib/schemas/login.schema'
 import type { LoginFormValues } from '../../../lib/schemas/login.schema'
 import { Button } from '../../atoms/Button'
+import { MaterialIcon } from '../../atoms/MaterialIcon'
 import { FormField } from '../../molecules/FormField'
 import { RememberMeRow } from '../../molecules/RememberMeRow'
 import { Divider } from '../../molecules/Divider'
@@ -25,43 +26,49 @@ export function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground mb-1">Login</h1>
-        <p className="text-sm text-muted">Bem-vindo de volta! Por favor, insira seus dados.</p>
+      <div className="flex flex-col gap-8">
+        <div className="flex flex-col gap-10">
+          <div className="flex flex-col gap-6">
+            <h1 className="text-[31px] font-semibold text-foreground">Login</h1>
+            <p className="text-[22px] text-foreground">Boas-vindas! Faça seu login.</p>
+          </div>
+          <div className="flex flex-col gap-4">
+            <FormField
+              id="identifier"
+              label="Email ou usuário"
+              placeholder="seu@email.com"
+              registration={register('identifier')}
+              error={errors.identifier?.message}
+            />
+            <div className="flex flex-col gap-2">
+              <FormField
+                id="password"
+                label="Senha"
+                type="password"
+                placeholder="••••••••"
+                registration={register('password')}
+                error={errors.password?.message}
+              />
+              <RememberMeRow registration={register('rememberMe')} />
+            </div>
+          </div>
+        </div>
+
+        <Button type="submit" variant="primary" className="w-full" rightIcon={<MaterialIcon name="arrow_forward" />}>
+          Login
+        </Button>
+
+        <div className="flex flex-col gap-2">
+          <Divider>ou entre com outras contas</Divider>
+          <SocialLoginGroup />
+        </div>
       </div>
-
-      <div className="flex flex-col gap-4">
-        <FormField
-          id="identifier"
-          label="Email ou usuário"
-          placeholder="seu@email.com"
-          registration={register('identifier')}
-          error={errors.identifier?.message}
-        />
-        <FormField
-          id="password"
-          label="Senha"
-          type="password"
-          placeholder="••••••••"
-          registration={register('password')}
-          error={errors.password?.message}
-        />
-      </div>
-
-      <RememberMeRow registration={register('rememberMe')} />
-
-      <Button type="submit" variant="primary" className="w-full">
-        Entrar
-      </Button>
-
-      <Divider>ou entre com</Divider>
-
-      <SocialLoginGroup />
 
       <AuthFooter
-        question="Não tem uma conta?"
+        question="Ainda não tem conta?"
         linkText="Crie seu cadastro!"
-        to="/signup"
+        to="/register"
+        icon={<MaterialIcon name="assignment" />}
       />
     </form>
   )

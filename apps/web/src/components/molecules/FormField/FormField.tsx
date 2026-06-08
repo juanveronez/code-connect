@@ -13,7 +13,7 @@ type FormFieldProps = {
 
 export function FormField({ id, label, type = 'text', placeholder, registration, error }: FormFieldProps) {
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className="flex flex-col gap-2">
       <Label htmlFor={id}>{label}</Label>
       <Input
         id={id}

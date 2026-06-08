@@ -16,7 +16,7 @@ export function TextLink({ to, tone = 'default', children, className = '' }: Tex
   }
 
   return (
-    <Link to={to} className={`text-sm underline-offset-4 hover:underline transition-colors ${tones[tone]} ${className}`}>
+    <Link to={to} className={`underline-offset-4 hover:underline transition-colors ${tones[tone]} ${className}`}>
       {children}
     </Link>
   )
