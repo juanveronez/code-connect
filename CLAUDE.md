@@ -71,7 +71,7 @@ Examples:
 - **Testing**: every component must have a `*.test.tsx` alongside it (Vitest + Testing Library)
   - Cover the essential usage: renders without crashing, reflects the primary prop/state, and any critical interaction
   - Run tests with `pnpm web:test`
-- **Accessibility testing**: every component must also have a `*.a11y.test.tsx` alongside it (jest-axe + axe-core, WCAG 2 AA ruleset)
+- **Accessibility testing**: every component must also have a `*.a11y.test.tsx` alongside it (axe-core, WCAG 2 AA ruleset)
   - See [Accessibility testing guidelines](#accessibility-testing-guidelines-wcag-2-aa) below
 
 ### Accessibility testing guidelines (WCAG 2 AA)
@@ -80,7 +80,8 @@ Every component gets a `ComponentName.a11y.test.tsx` file alongside its `Compone
 
 #### Setup and helpers
 
-- **Library**: `jest-axe` (wraps axe-core); matchers registered globally in `src/test/setup.ts`
+- **Library**: `axe-core` (called directly via `axe.run()`); no global matchers needed
+- **Dev-time browser logging**: `@axe-core/react` is initialised in `src/main.tsx` in DEV mode — it logs violations to the browser console after every render
 - **Shared helper**: `src/test/a11y.ts` exports `runAxe(container)` pre-configured for WCAG 2 AA:
 
 ```ts
@@ -103,10 +104,15 @@ import { render } from '@testing-library/react'
 import { runAxe } from '../../../test/a11y'
 import { Button } from './Button'
 
-describe('Button – acessibilidade (WCAG 2 AA)', () => {
-  it('variante primary com texto não tem violações', async () => {
+describe('Button – accessibility (WCAG 2 AA)', () => {
+  it('primary variant with text has no violations', async () => {
     const { container } = render(<Button>Entrar</Button>)
-    expect(await runAxe(container)).toHaveNoViolations()
+    expect((await runAxe(container)).violations).toHaveLength(0)
+  })
+
+  it('button without accessible name has a violation', async () => {
+    const { container } = render(<Button />)
+    expect((await runAxe(container)).violations).not.toHaveLength(0)
   })
 })
 ```
@@ -114,10 +120,10 @@ describe('Button – acessibilidade (WCAG 2 AA)', () => {
 #### Rules for writing a11y tests
 
 1. **Test realistic usage** — render the component exactly as it appears in the app (with labels, wrappers, siblings). A `Checkbox` isolated without a label will fail, but that is the invalid usage, not a bug.
-2. **Also test invalid usage** with `not.toHaveNoViolations()` to confirm axe catches the violation. This documents the contract: "this component is only accessible when used with a label."
+2. **Also test invalid usage** with `.not.toHaveLength(0)` to confirm axe catches the violation. This documents the contract: "this component is only accessible when used with a label."
 3. **Wrap router-dependent components** in `<MemoryRouter>` (`TextLink`, `AuthFooter`, forms that include footer links).
 4. **Wrap react-hook-form-dependent components** in a local wrapper component that calls `useForm` and passes the `registration` prop.
-5. **Use Portuguese** for `describe`/`it` strings to match the rest of the test suite.
+5. **Use English** for `describe`/`it` strings.
 
 #### What automated tests cover (detectable in jsdom)
 
