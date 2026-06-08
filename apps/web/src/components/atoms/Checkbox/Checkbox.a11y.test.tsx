@@ -2,28 +2,28 @@ import { render } from '@testing-library/react'
 import { runAxe } from '../../../test/a11y'
 import { Checkbox } from './Checkbox'
 
-describe('Checkbox – acessibilidade (WCAG 2 AA)', () => {
-  it('envolta em label implícita não tem violações', async () => {
+describe('Checkbox – accessibility (WCAG 2 AA)', () => {
+  it('wrapped in implicit label has no violations', async () => {
     const { container } = render(
       <label>
         <Checkbox /> Lembrar-me
       </label>,
     )
-    expect(await runAxe(container)).toHaveNoViolations()
+    expect((await runAxe(container)).violations).toHaveLength(0)
   })
 
-  it('associada por id/htmlFor não tem violações', async () => {
+  it('associated by id/htmlFor has no violations', async () => {
     const { container } = render(
       <>
         <label htmlFor="remember">Lembrar-me</label>
         <Checkbox id="remember" />
       </>,
     )
-    expect(await runAxe(container)).toHaveNoViolations()
+    expect((await runAxe(container)).violations).toHaveLength(0)
   })
 
-  it('sem label tem violação', async () => {
+  it('without label has a violation', async () => {
     const { container } = render(<Checkbox />)
-    expect(await runAxe(container)).not.toHaveNoViolations()
+    expect((await runAxe(container)).violations).not.toHaveLength(0)
   })
 })

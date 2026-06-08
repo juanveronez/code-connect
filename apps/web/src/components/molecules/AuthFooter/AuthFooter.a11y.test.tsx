@@ -4,8 +4,8 @@ import { MaterialIcon } from '../../atoms/MaterialIcon'
 import { runAxe } from '../../../test/a11y'
 import { AuthFooter } from './AuthFooter'
 
-describe('AuthFooter – acessibilidade (WCAG 2 AA)', () => {
-  it('com ícone não tem violações', async () => {
+describe('AuthFooter – accessibility (WCAG 2 AA)', () => {
+  it('with icon has no violations', async () => {
     const { container } = render(
       <MemoryRouter>
         <AuthFooter
@@ -16,10 +16,10 @@ describe('AuthFooter – acessibilidade (WCAG 2 AA)', () => {
         />
       </MemoryRouter>,
     )
-    expect(await runAxe(container)).toHaveNoViolations()
+    expect((await runAxe(container)).violations).toHaveLength(0)
   })
 
-  it('sem ícone não tem violações', async () => {
+  it('without icon has no violations', async () => {
     const { container } = render(
       <MemoryRouter>
         <AuthFooter
@@ -29,6 +29,6 @@ describe('AuthFooter – acessibilidade (WCAG 2 AA)', () => {
         />
       </MemoryRouter>,
     )
-    expect(await runAxe(container)).toHaveNoViolations()
+    expect((await runAxe(container)).violations).toHaveLength(0)
   })
 })

@@ -42,19 +42,19 @@ function PasswordFieldWrapper() {
   )
 }
 
-describe('FormField – acessibilidade (WCAG 2 AA)', () => {
-  it('campo de texto sem erro não tem violações', async () => {
+describe('FormField – accessibility (WCAG 2 AA)', () => {
+  it('text field without error has no violations', async () => {
     const { container } = render(<TextFieldWrapper />)
-    expect(await runAxe(container)).toHaveNoViolations()
+    expect((await runAxe(container)).violations).toHaveLength(0)
   })
 
-  it('campo com mensagem de erro não tem violações', async () => {
+  it('field with error message has no violations', async () => {
     const { container } = render(<FieldWithErrorWrapper />)
-    expect(await runAxe(container)).toHaveNoViolations()
+    expect((await runAxe(container)).violations).toHaveLength(0)
   })
 
-  it('campo de senha não tem violações', async () => {
+  it('password field has no violations', async () => {
     const { container } = render(<PasswordFieldWrapper />)
-    expect(await runAxe(container)).toHaveNoViolations()
+    expect((await runAxe(container)).violations).toHaveLength(0)
   })
 })

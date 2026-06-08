@@ -13,9 +13,9 @@ function Wrapper() {
   )
 }
 
-describe('RememberMeRow – acessibilidade (WCAG 2 AA)', () => {
-  it('checkbox com label implícita e link não tem violações', async () => {
+describe('RememberMeRow – accessibility (WCAG 2 AA)', () => {
+  it('checkbox with implicit label and link has no violations', async () => {
     const { container } = render(<Wrapper />)
-    expect(await runAxe(container)).toHaveNoViolations()
+    expect((await runAxe(container)).violations).toHaveLength(0)
   })
 })

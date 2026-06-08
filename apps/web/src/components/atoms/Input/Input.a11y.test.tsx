@@ -2,23 +2,23 @@ import { render } from '@testing-library/react'
 import { runAxe } from '../../../test/a11y'
 import { Input } from './Input'
 
-describe('Input – acessibilidade (WCAG 2 AA)', () => {
-  it('com label associada por htmlFor não tem violações', async () => {
+describe('Input – accessibility (WCAG 2 AA)', () => {
+  it('with label associated by htmlFor has no violations', async () => {
     const { container } = render(
       <>
         <label htmlFor="email">Email</label>
         <Input id="email" type="email" />
       </>,
     )
-    expect(await runAxe(container)).toHaveNoViolations()
+    expect((await runAxe(container)).violations).toHaveLength(0)
   })
 
-  it('com aria-label não tem violações', async () => {
+  it('with aria-label has no violations', async () => {
     const { container } = render(<Input aria-label="Email" type="email" />)
-    expect(await runAxe(container)).toHaveNoViolations()
+    expect((await runAxe(container)).violations).toHaveLength(0)
   })
 
-  it('estado inválido com label não tem violações', async () => {
+  it('invalid state with label has no violations', async () => {
     const { container } = render(
       <>
         <label htmlFor="email">Email</label>
@@ -26,11 +26,11 @@ describe('Input – acessibilidade (WCAG 2 AA)', () => {
         <span id="email-error">Email inválido</span>
       </>,
     )
-    expect(await runAxe(container)).toHaveNoViolations()
+    expect((await runAxe(container)).violations).toHaveLength(0)
   })
 
-  it('sem label tem violação', async () => {
+  it('without label has a violation', async () => {
     const { container } = render(<Input />)
-    expect(await runAxe(container)).not.toHaveNoViolations()
+    expect((await runAxe(container)).violations).not.toHaveLength(0)
   })
 })

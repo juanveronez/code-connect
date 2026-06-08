@@ -1,12 +1,12 @@
-import { axe } from 'jest-axe'
+import axe from 'axe-core'
 
-export const wcag2aa = {
+const wcag2aa: axe.RunOptions = {
   runOnly: {
-    type: 'tag' as const,
+    type: 'tag',
     values: ['wcag2a', 'wcag2aa'],
   },
 }
 
 export function runAxe(container: Element) {
-  return axe(container, wcag2aa)
+  return axe.run(container, wcag2aa)
 }
