@@ -2,7 +2,7 @@ import { AuthTemplate } from '../../components/templates/AuthTemplate'
 import { LoginForm } from '../../components/organisms/LoginForm'
 
 const banner = {
-  src: '/banner-login.png',
+  src: '/banner-login.webp',
   alt: 'Ilustração de login',
 }
 

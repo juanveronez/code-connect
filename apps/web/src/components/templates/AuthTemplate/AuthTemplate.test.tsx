@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react'
 import { AuthTemplate } from './AuthTemplate'
 
 const banner = {
-  src: '/banner-login.png',
+  src: '/banner-login.webp',
   alt: 'Login banner',
 }
 
