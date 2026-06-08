@@ -53,7 +53,7 @@ export function AuthTemplate({ banner, children }: AuthTemplateProps) {
             </picture>
           )}
         </div>
-        <div className="px-8 flex items-center">
+        <div className="px-8 flex items-center flex-1">
           <div className="w-full">
             {children}
           </div>
