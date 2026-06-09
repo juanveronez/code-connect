@@ -1,7 +1,10 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useNavigate } from 'react-router-dom'
 import { registerSchema } from '../../../lib/schemas/register.schema'
 import type { RegisterFormValues } from '../../../lib/schemas/register.schema'
+import { useRegister } from '../../../lib/api/hooks'
+import { authErrorMessage } from '../../../lib/api/errors'
 import { Button } from '../../atoms/Button'
 import { Checkbox } from '../../atoms/Checkbox'
 import { MaterialIcon } from '../../atoms/MaterialIcon'
@@ -20,8 +23,18 @@ export function RegisterForm() {
     defaultValues: { rememberMe: false },
   })
 
-  function onSubmit(values: RegisterFormValues) {
-    console.log(values)
+  const { mutate, isPending, error } = useRegister()
+  const navigate = useNavigate()
+
+  function onSubmit({ name, email, password }: RegisterFormValues) {
+    mutate(
+      { name, email, password },
+      {
+        onSuccess: () => {
+          void navigate('/login')
+        },
+      },
+    )
   }
 
   return (
@@ -32,6 +45,11 @@ export function RegisterForm() {
             <h1 className="text-3xl font-semibold text-foreground">Cadastro</h1>
             <p className="text-xl text-foreground">Olá! Preencha seus dados.</p>
           </div>
+          {error && (
+            <p role="alert" className="text-sm text-red-400">
+              {authErrorMessage(error, 'Não foi possível cadastrar')}
+            </p>
+          )}
           <div className="flex flex-col gap-4">
             <FormField
               id="name"
@@ -65,8 +83,8 @@ export function RegisterForm() {
           </div>
         </div>
 
-        <Button type="submit" variant="primary" className="w-full" rightIcon={<MaterialIcon name="arrow_forward" />}>
-          Cadastrar
+        <Button type="submit" variant="primary" className="w-full" disabled={isPending} rightIcon={<MaterialIcon name="arrow_forward" />}>
+          {isPending ? 'Cadastrando…' : 'Cadastrar'}
         </Button>
 
         <div className="flex flex-col gap-2">

@@ -1,7 +1,11 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useNavigate } from 'react-router-dom'
 import { loginSchema } from '../../../lib/schemas/login.schema'
 import type { LoginFormValues } from '../../../lib/schemas/login.schema'
+import { useLogin } from '../../../lib/api/hooks'
+import { useAuth } from '../../../lib/auth/AuthContext'
+import { authErrorMessage } from '../../../lib/api/errors'
 import { Button } from '../../atoms/Button'
 import { MaterialIcon } from '../../atoms/MaterialIcon'
 import { FormField } from '../../molecules/FormField'
@@ -20,8 +24,20 @@ export function LoginForm() {
     defaultValues: { rememberMe: false },
   })
 
-  function onSubmit(values: LoginFormValues) {
-    console.log(values)
+  const { mutate, isPending, error } = useLogin()
+  const { setSession } = useAuth()
+  const navigate = useNavigate()
+
+  function onSubmit({ email, password, rememberMe }: LoginFormValues) {
+    mutate(
+      { email, password },
+      {
+        onSuccess: (data) => {
+          setSession(data.access_token, rememberMe)
+          void navigate('/profile')
+        },
+      },
+    )
   }
 
   return (
@@ -32,13 +48,19 @@ export function LoginForm() {
             <h1 className="text-3xl font-semibold text-foreground">Login</h1>
             <p className="text-xl text-foreground">Boas-vindas! Faça seu login.</p>
           </div>
+          {error && (
+            <p role="alert" className="text-sm text-red-400">
+              {authErrorMessage(error, 'Não foi possível entrar')}
+            </p>
+          )}
           <div className="flex flex-col gap-4">
             <FormField
-              id="identifier"
-              label="Email ou usuário"
+              id="email"
+              label="Email"
+              type="email"
               placeholder="seu@email.com"
-              registration={register('identifier')}
-              error={errors.identifier?.message}
+              registration={register('email')}
+              error={errors.email?.message}
             />
             <div className="flex flex-col gap-2">
               <FormField
@@ -54,8 +76,8 @@ export function LoginForm() {
           </div>
         </div>
 
-        <Button type="submit" variant="primary" className="w-full" rightIcon={<MaterialIcon name="arrow_forward" />}>
-          Login
+        <Button type="submit" variant="primary" className="w-full" disabled={isPending} rightIcon={<MaterialIcon name="arrow_forward" />}>
+          {isPending ? 'Entrando…' : 'Login'}
         </Button>
 
         <div className="flex flex-col gap-2">
