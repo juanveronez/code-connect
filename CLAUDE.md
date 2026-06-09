@@ -9,6 +9,12 @@ pnpm monorepo with two apps managed via `pnpm-workspace.yaml`:
 - **`apps/api`** — NestJS 11 REST API (TypeScript), listens on `PORT` env var or `3000`
 - **`apps/web`** — React 19 + Vite 8 SPA (TypeScript), communicates with the API
 
+### Persistence
+
+- **Database**: PostgreSQL, defined in the repo-root `docker-compose.yml`. The data volume is bind-mounted to `./data` (gitignored).
+- **ORM**: Prisma. The schema lives in `apps/api/prisma/schema.prisma`; the generated client is consumed through `PrismaService` (`apps/api/src/prisma/`).
+- **Repository abstraction**: data access sits behind an abstract `*Repository` class that doubles as the DI token. Each resource has an in-memory implementation (unit tests) and a Prisma implementation (production + e2e). See the Backend section below.
+
 ## Commands
 
 All commands run from the repo root using pnpm workspace filters.
@@ -25,13 +31,24 @@ pnpm api:build     # nest build → dist/
 pnpm web:build     # tsc + vite build
 ```
 
+### Database
+```bash
+pnpm db:up                          # start PostgreSQL (docker compose)
+pnpm db:down                        # stop it
+pnpm api:prisma:migrate             # prisma migrate dev (create/apply migrations on dev DB)
+pnpm api:prisma:generate            # regenerate the Prisma client
+pnpm --filter api db:reset          # drop + recreate + re-migrate the dev DB
+```
+> Requires a reachable Docker daemon. Inside the devcontainer this needs the `docker-outside-of-docker` feature (rebuild the container after it is added).
+
 ### Testing (API only)
 ```bash
-pnpm api:test                                         # all unit tests
-pnpm --filter api test -- --testPathPattern=app       # single test file
-pnpm --filter api test:e2e                            # e2e suite (jest-e2e.json)
-pnpm --filter api test:cov                            # with coverage
+pnpm api:test                                         # unit tests — in-memory, no DB
+pnpm --filter api test -- --testPathPattern=app       # single unit test file
+pnpm --filter api test:cov                            # unit tests with coverage
+pnpm api:test:e2e                                     # e2e suite — real Postgres (jest-e2e.json)
 ```
+> `test:e2e` loads `apps/api/.env.test` (points at the `code_connect_test` DB), runs `--runInBand`, and applies migrations via a Jest `globalSetup`. Bring Postgres up first with `pnpm db:up`.
 
 ### Lint / Format
 ```bash
@@ -205,4 +222,24 @@ Custom tokens live in `src/index.css` under `@theme` and follow Tailwind v4 name
   - Consistent JSON response shape; use NestJS `@HttpCode()` and exception filters
   - Stateless requests — no server-side session state
 - **Module pattern**: each resource gets a Module + Controller + Service triple; wire into `AppModule`
-- **Tests**: unit tests live alongside source as `*.spec.ts`; e2e tests are in `apps/api/test/`
+
+#### Persistence & repository pattern
+
+Services must never talk to Prisma directly — they depend on a repository abstraction so that unit tests run against an in-memory implementation and only e2e tests touch PostgreSQL.
+
+- **The abstraction is an abstract class**, not an interface, so it serves as both the DI token and the type contract (no separate `Symbol`/`@Inject(...)`). Example: `apps/api/src/users/users.repository.ts`.
+- **Two implementations per repository**, alongside the abstraction:
+  - `InMemoryUsersRepository` — array-backed, used by unit tests.
+  - `PrismaUsersRepository` — injects `PrismaService`, used at runtime + e2e.
+- **Repository methods are async** and return `Promise<T | null>` (never `undefined`) to match Prisma's `findUnique`. The service is a thin async pass-through.
+- **Wiring**: the resource module imports `PrismaModule` and provides `{ provide: XRepository, useClass: PrismaXRepository }`. `PrismaModule` is `@Global`, so `PrismaService` is injectable app-wide from a single import in `AppModule`.
+- **Prisma schema conventions** (`apps/api/prisma/schema.prisma`): `String @id @default(uuid()) @db.Uuid` for ids; **snake_case columns and tables** via `@map`/`@@map` (e.g. `passwordHash String @map("password_hash")`, `@@map("users")`) while keeping camelCase TS fields. `migrate dev` after schema changes; commit the generated `prisma/migrations/**`.
+- **DB-level constraints are the source of truth.** Keep friendly app-level checks (e.g. `findByEmail` before create → `ConflictException`) but also catch Prisma `P2002` (unique violation) and translate it, since the pre-check is racy.
+
+#### Tests
+
+Two tiers only — unit and e2e (no separate integration tier; e2e against a real DB already covers the persistence layer end-to-end).
+
+- **Unit** (`*.spec.ts`, alongside source, `rootDir: src`): no database. Instantiate the service with the in-memory repository — `new UsersService(new InMemoryUsersRepository())`. Mocked dependencies use `mockResolvedValue` (methods are async). Unit tests must pass with Postgres stopped.
+- **E2E** (`*.e2e-spec.ts`, in `apps/api/test/`): boot the full `AppModule` against the real `code_connect_test` DB; cover real flows and DB-level behaviour the in-memory repo can't prove (e.g. register → login → profile, duplicate-email `409` via the `P2002` unique constraint). Truncate between tests (`TRUNCATE ... RESTART IDENTITY CASCADE`).
+- E2E runs serially → always `--runInBand`; the Jest `globalSetup` (`apps/api/test/e2e-global-setup.ts`) runs `prisma migrate deploy`.

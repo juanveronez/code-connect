@@ -32,8 +32,8 @@ describe('AuthService', () => {
 
   describe('register', () => {
     it('creates and returns the user without passwordHash', async () => {
-      usersService.findByEmail.mockReturnValue(undefined);
-      usersService.create.mockReturnValue(mockUser);
+      usersService.findByEmail.mockResolvedValue(null);
+      usersService.create.mockResolvedValue(mockUser);
 
       const result = await authService.register({
         name: 'Alice',
@@ -51,7 +51,7 @@ describe('AuthService', () => {
     });
 
     it('throws ConflictException when email is already registered', async () => {
-      usersService.findByEmail.mockReturnValue(mockUser);
+      usersService.findByEmail.mockResolvedValue(mockUser);
 
       await expect(
         authService.register({
@@ -66,7 +66,7 @@ describe('AuthService', () => {
   describe('signIn', () => {
     it('returns access_token on valid credentials', async () => {
       const hash = await bcrypt.hash('secret123', 10);
-      usersService.findByEmail.mockReturnValue({
+      usersService.findByEmail.mockResolvedValue({
         ...mockUser,
         passwordHash: hash,
       });
@@ -82,7 +82,7 @@ describe('AuthService', () => {
     });
 
     it('throws UnauthorizedException when user not found', async () => {
-      usersService.findByEmail.mockReturnValue(undefined);
+      usersService.findByEmail.mockResolvedValue(null);
 
       await expect(
         authService.signIn({ email: 'missing@test.com', password: 'pass' }),
@@ -91,7 +91,7 @@ describe('AuthService', () => {
 
     it('throws UnauthorizedException when password is wrong', async () => {
       const hash = await bcrypt.hash('correct', 10);
-      usersService.findByEmail.mockReturnValue({
+      usersService.findByEmail.mockResolvedValue({
         ...mockUser,
         passwordHash: hash,
       });

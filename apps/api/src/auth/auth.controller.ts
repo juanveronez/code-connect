@@ -47,8 +47,10 @@ export class AuthController {
   @ApiBearerAuth()
   @ApiResponse({ status: 200, type: UserResponseDto })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  profile(@CurrentUser() payload: AuthenticatedUser): UserResponseDto {
-    const user = this.usersService.findById(payload.sub);
+  async profile(
+    @CurrentUser() payload: AuthenticatedUser,
+  ): Promise<UserResponseDto> {
+    const user = await this.usersService.findById(payload.sub);
     if (!user) throw new NotFoundException();
     return { id: user.id, name: user.name, email: user.email };
   }

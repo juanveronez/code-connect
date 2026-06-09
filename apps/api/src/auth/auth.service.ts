@@ -4,6 +4,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { Prisma } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
 import { AuthResponseDto } from './dto/auth-response.dto';
@@ -19,20 +20,32 @@ export class AuthService {
   ) {}
 
   async register(dto: RegisterDto): Promise<UserResponseDto> {
-    if (this.usersService.findByEmail(dto.email)) {
+    if (await this.usersService.findByEmail(dto.email)) {
       throw new ConflictException('Email already in use');
     }
     const passwordHash = await bcrypt.hash(dto.password, 10);
-    const user = this.usersService.create({
-      name: dto.name,
-      email: dto.email,
-      passwordHash,
-    });
-    return { id: user.id, name: user.name, email: user.email };
+    try {
+      const user = await this.usersService.create({
+        name: dto.name,
+        email: dto.email,
+        passwordHash,
+      });
+      return { id: user.id, name: user.name, email: user.email };
+    } catch (error) {
+      // Corrida entre o findByEmail acima e o create: a unicidade no banco
+      // (constraint do Postgres) é a fonte da verdade e dispara P2002.
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new ConflictException('Email already in use');
+      }
+      throw error;
+    }
   }
 
   async signIn(dto: LoginDto): Promise<AuthResponseDto> {
-    const user = this.usersService.findByEmail(dto.email);
+    const user = await this.usersService.findByEmail(dto.email);
     if (!user || !(await bcrypt.compare(dto.password, user.passwordHash))) {
       throw new UnauthorizedException('Invalid credentials');
     }

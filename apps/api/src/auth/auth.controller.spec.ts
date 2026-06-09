@@ -25,7 +25,7 @@ describe('AuthController', () => {
     } as unknown as jest.Mocked<AuthService>;
 
     usersService = {
-      findById: jest.fn().mockReturnValue(mockUser),
+      findById: jest.fn().mockResolvedValue(mockUser),
     } as unknown as jest.Mocked<UsersService>;
 
     controller = new AuthController(authService, usersService);
@@ -55,9 +55,9 @@ describe('AuthController', () => {
     expect(result).toEqual({ access_token: 'token' });
   });
 
-  it('profile returns user from usersService.findById using payload.sub', () => {
+  it('profile returns user from usersService.findById using payload.sub', async () => {
     const payload = { sub: 'user-1' };
-    const result = controller.profile(payload);
+    const result = await controller.profile(payload);
     // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(usersService.findById).toHaveBeenCalledWith('user-1');
     expect(result).toEqual({

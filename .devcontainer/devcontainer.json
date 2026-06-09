@@ -2,7 +2,8 @@
   "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
   "features": {
     "ghcr.io/devcontainers/features/node:1": {},
-    "ghcr.io/anthropics/devcontainer-features/claude-code:1": {}
+    "ghcr.io/anthropics/devcontainer-features/claude-code:1": {},
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
   },
   "mounts": [
     "source=claude-code-config,target=/root/.claude,type=volume"
